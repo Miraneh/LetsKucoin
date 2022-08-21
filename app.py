@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, url_for, redirect, flash
+from flask_migrate import Migrate
 from kucoin.client import User as U
 from forms import RegistrationForm, LoginForm
 from db import *
