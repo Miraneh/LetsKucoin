@@ -9,8 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_login import LoginManager, current_user
-from models import User
-
+from models import User, Position
 
 app = Flask(__name__)
 SECRET_KEY = os.urandom(32)
@@ -77,6 +76,19 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/get-positions', methods=['GET'])
+def get_positions():
+    try:
+        with app.app_context():
+            positions = Position.query.all()
+        for position in positions:
+            print(position)
+    except Exception as e:
+        print(e)
+        return "NO :<"
+    return "Yay :>"
+
+
 def check_information():
     with app.app_context():
         users = User.query.all()
@@ -84,8 +96,14 @@ def check_information():
     for user in users:
         try:
             client = U(user.api_key, user.api_secret, user.api_passphrase)
-            resp = client.get_account_list()
+            resp = client.get_account_list()[0]
             print(resp)
+            with app.app_context():
+                position = Position(user_id=user.id, id=resp['id'], currency=resp['currency'], account_type=resp['type'],
+                                    balance=resp['balance'], available=resp['available'], holds=resp['holds'])
+                db.session.add(position)
+                db.session.commit()
+
         except Exception as e:
             print(e)
 

@@ -18,7 +18,22 @@ class User(UserMixin, db.Model):
         self.api_passphrase = api_passphrase
 
 
-class Positions(db.Model):
+class Position(db.Model):
     row_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column()
-    id = db.Column(db.String(100), )
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    id = db.Column(db.String(100))
+    currency = db.Column(db.String(10))
+    account_type = db.Column(db.String(10))
+    balance = db.Column(db.Float)
+    available = db.Column(db.Float)
+    holds = db.Column(db.Float)
+
+    def __init__(self, user_id, id, currency, account_type, balance, available, holds):
+        self.user_id = user_id
+        self.id = id
+        self.currency = currency
+        self.account_type = account_type
+        self.balance = balance
+        self.available = available
+        self.holds = holds
+
